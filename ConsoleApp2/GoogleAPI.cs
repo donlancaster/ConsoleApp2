@@ -18,26 +18,17 @@ namespace ConsoleApp2
 
         private static string[] Scopes = { DriveService.Scope.Drive };
         private static string ApplicationName = "ConsoleApp2";
-        private static string FolderId = "1Pglota0Zz5ghdUXzTY-tzGOAmTMZdGvb"; // указать
-        
+        private static string FolderId = "1Pglota0Zz5ghdUXzTY-tzGOAmTMZdGvb"; 
+
         private static string filePath = AppDomain.CurrentDomain.BaseDirectory;
-       
+
 
         public static void Process(string fileName, string contentType)
         {
             UserCredential credential = GetUserCredential();
             DriveService service = GetDriveService(credential);
-
-           /* IList<Google.Apis.Drive.v3.Data.File> files = service.Files.List().Execute().Files;
-            foreach(var file in files)
-            {
-                Console.WriteLine("File Title: {0}, id: {1}", file.Name, file.Id);
-            }*/
             Console.WriteLine("uploading files");
-            UploadFileToDrive(service, fileName, filePath+fileName,contentType);
-            
-          
-
+            UploadFileToDrive(service, fileName, filePath + fileName, contentType);
         }
 
         private static UserCredential GetUserCredential()
@@ -46,12 +37,7 @@ namespace ConsoleApp2
             {
                 string creadPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 creadPath = Path.Combine(creadPath, "driveApiCredentials", "drive-credentials.json");
-                return GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "User",
-                    CancellationToken.None,
-                    new FileDataStore(creadPath, true)).Result;
+                return GoogleWebAuthorizationBroker.AuthorizeAsync(GoogleClientSecrets.Load(stream).Secrets, Scopes, "User", CancellationToken.None, new FileDataStore(creadPath, true)).Result;
             }
         }
 
@@ -75,13 +61,10 @@ namespace ConsoleApp2
             {
                 request = service.Files.Create(fileMetadata, stream, contentType);
                 request.Upload();
-                //Thread.Sleep(100);
             }
             var file = request.ResponseBody;
             Console.WriteLine(file.Id);
             return file.Id;
         }
-
-
     }
 }
